@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:wetrocloud_sdk/utils/enums.dart';
+import 'package:wetrocloud_sdk/utils/interceptors.dart';
 
 import 'models/responses.dart';
 
@@ -11,30 +13,36 @@ class WetroCloud {
       : _dio = Dio(BaseOptions(
           baseUrl: 'https://api.wetrocloud.com/v1',
           headers: {
-            'Authorization': 'Bearer $apiKey',
+            'Authorization': 'Token $apiKey',
           },
-        ));
+        )) {
+    _dio.interceptors.add(CurlLoggerInterceptor());
+  }
 
   /// Creates a new collection in WetroCloud.
   ///
   /// This method sends a POST request to the `/v1/collection/create` endpoint to create a new collection.
-  /// The [collectionId] parameter is optional, and if not provided, the API will generate one.
-  ///
-  /// [collectionId]: The custom ID for the collection (optional).
   ///
   /// Returns a [CreateCollectionResponse] containing the [collectionId] and a success status.
   /// Throws an [Exception] if the request fails.
-  Future<CreateCollectionResponse> createCollection(
-      {String? collectionId}) async {
+  Future<CreateCollectionResponse> createCollection() async {
     try {
-      final formData = FormData.fromMap({
-        if (collectionId != null) 'collection_id': collectionId,
-      });
+      'Creating collection...'.log();
 
-      final response = await _dio.post('/collection/create', data: formData);
+      final response = await _dio.post(
+        '/collection/create/',
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      'Create collection response: ${response.data}'.log();
 
       return CreateCollectionResponse.fromJson(response.data);
     } on DioException catch (e) {
+      'Failed to create collection: ${e.response?.data ?? e.message}'.log();
       throw Exception(
           'Failed to create collection: ${e.response?.data ?? e.message}');
     }
@@ -50,7 +58,7 @@ class WetroCloud {
   /// Throws an [Exception] if the request fails.
   Future<ListCollectionsResponse> listCollections() async {
     try {
-      final response = await _dio.get('/collection/all');
+      final response = await _dio.get('/collection/all/');
 
       return ListCollectionsResponse.fromJson(response.data);
     } on DioException catch (e) {

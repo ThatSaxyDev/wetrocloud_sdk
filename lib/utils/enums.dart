@@ -32,3 +32,8 @@ extension WetroResourceTypeExtension on WetroResourceType {
 //   resource: 'https://mybucket.com/resource.pdf',
 //   type: WetroResourceType.file,
 // );
+
+
+extension Logger on Object {
+  void log() => print('[LOG] $this');
+}
