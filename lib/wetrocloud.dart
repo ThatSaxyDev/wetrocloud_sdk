@@ -40,9 +40,23 @@ class WetroCloud {
     }
   }
 
-  /// Retrieves all existing collections.
-  Future<List<ListCollectionResponse>> listCollections() async {
-    throw UnimplementedError();
+  /// Lists all the collections available in WetroCloud.
+  ///
+  /// Sends a GET request to the `/v1/collection/all` endpoint to retrieve all collections.
+  /// This list is paginated with a maximum of 20 items per request.
+  ///
+  /// Returns a [ListCollectionsResponse] containing the total count, pagination URLs,
+  /// and a list of the collections.
+  /// Throws an [Exception] if the request fails.
+  Future<ListCollectionsResponse> listCollections() async {
+    try {
+      final response = await _dio.get('/collection/all');
+
+      return ListCollectionsResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(
+          'Failed to list collections: ${e.response?.data ?? e.message}');
+    }
   }
 
   /// Inserts a new resource into the specified collection.
