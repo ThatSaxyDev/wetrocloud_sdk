@@ -1,8 +1,18 @@
 class CreateCollectionResponse {
-  // Define the properties and methods for CreateCollectionResponse
   final String collectionId;
+  final bool success;
 
-  CreateCollectionResponse({required this.collectionId});
+  CreateCollectionResponse({
+    required this.collectionId,
+    required this.success,
+  });
+
+  factory CreateCollectionResponse.fromJson(Map<String, dynamic> json) {
+    return CreateCollectionResponse(
+      collectionId: json['collection_id'] as String,
+      success: json['success'] as bool,
+    );
+  }
 }
 
 class ChatResponse<T> {
