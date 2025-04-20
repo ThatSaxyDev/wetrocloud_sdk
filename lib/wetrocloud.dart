@@ -1,18 +1,43 @@
+import 'package:dio/dio.dart';
+
 import 'models/responses.dart';
 
 /// A Dart SDK for interacting with the WetroCloud API.
 class WetroCloud {
+  final Dio _dio;
   final String apiKey;
 
-  /// Creates a new instance of [WetroCloud].
-  WetroCloud({required this.apiKey});
+  WetroCloud({required this.apiKey})
+      : _dio = Dio(BaseOptions(
+          baseUrl: 'https://api.wetrocloud.com/v1',
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+          },
+        ));
 
   /// Creates a new collection in WetroCloud.
   ///
-  /// If [collectionId] is not provided, one will be generated automatically.
+  /// This method sends a POST request to the `/v1/collection/create` endpoint to create a new collection.
+  /// The [collectionId] parameter is optional, and if not provided, the API will generate one.
+  ///
+  /// [collectionId]: The custom ID for the collection (optional).
+  ///
+  /// Returns a [CreateCollectionResponse] containing the [collectionId] and a success status.
+  /// Throws an [Exception] if the request fails.
   Future<CreateCollectionResponse> createCollection(
       {String? collectionId}) async {
-    throw UnimplementedError();
+    try {
+      final formData = FormData.fromMap({
+        if (collectionId != null) 'collection_id': collectionId,
+      });
+
+      final response = await _dio.post('/collection/create', data: formData);
+
+      return CreateCollectionResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(
+          'Failed to create collection: ${e.response?.data ?? e.message}');
+    }
   }
 
   /// Retrieves all existing collections.

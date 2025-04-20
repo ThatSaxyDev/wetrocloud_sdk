@@ -36,11 +36,30 @@ class QueryResourceResponse<T> {
   QueryResourceResponse({required this.data});
 }
 
-class ListCollectionResponse {
-  // Define the properties and methods for ListCollectionResponse
-  final String collectionName;
+/// Model representing the response of listing all collections.
+class ListCollectionsResponse {
+  final int count;
+  final String? next;
+  final String? previous;
+  final List<String> results;
 
-  ListCollectionResponse({required this.collectionName});
+  /// Constructor for the [ListCollectionsResponse] class.
+  ListCollectionsResponse({
+    required this.count,
+    this.next,
+    this.previous,
+    required this.results,
+  });
+
+  /// Factory constructor to create a [ListCollectionsResponse] from JSON.
+  factory ListCollectionsResponse.fromJson(Map<String, dynamic> json) {
+    return ListCollectionsResponse(
+      count: json['count'] as int,
+      next: json['next'] as String?,
+      previous: json['previous'] as String?,
+      results: List<String>.from(json['results']),
+    );
+  }
 }
 
 class ChatMessage {
