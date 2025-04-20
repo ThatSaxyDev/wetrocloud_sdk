@@ -59,17 +59,37 @@ class WetroCloud {
     }
   }
 
-  /// Inserts a new resource into the specified collection.
+  /// Inserts a resource into a collection in WetroCloud.
   ///
-  /// [collectionId] is the ID of the collection.
-  /// [resource] is the resource to insert (e.g. a URL or text).
-  /// [type] defines the resource type, such as `"web"` or `"text"`.
+  /// Sends a POST request to the `/v1/resource/insert` endpoint to add a resource
+  /// (such as a URL, text, or other resource types) to the specified collection.
+  ///
+  /// [collectionId]: The ID of the collection to which the resource will be added.
+  /// [resource]: The URL or content of the resource to be added.
+  /// [type]: The type of resource being added (e.g., 'web', 'text', 'json', etc.).
+  ///
+  /// Returns an [InsertResourceResponse] containing the success status and the number of tokens used.
+  /// Throws an [Exception] if the request fails.
   Future<InsertResourceResponse> insertResource({
     required String collectionId,
     required String resource,
     required String type,
   }) async {
-    throw UnimplementedError();
+    try {
+      final response = await _dio.post(
+        '/resource/insert',
+        data: {
+          'collection_id': collectionId,
+          'resource': resource,
+          'type': type,
+        },
+      );
+
+      return InsertResourceResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(
+          'Failed to insert resource: ${e.response?.data ?? e.message}');
+    }
   }
 
   /// Queries resources from a collection.

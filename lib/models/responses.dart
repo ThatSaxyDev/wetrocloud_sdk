@@ -22,11 +22,24 @@ class ChatResponse<T> {
   ChatResponse({required this.response});
 }
 
+/// Model representing the response of inserting a resource into a collection.
 class InsertResourceResponse {
-  // Define the properties and methods for InsertResourceResponse
-  final String resourceId;
+  final bool success;
+  final int tokens;
 
-  InsertResourceResponse({required this.resourceId});
+  /// Constructor for the [InsertResourceResponse] class.
+  InsertResourceResponse({
+    required this.success,
+    required this.tokens,
+  });
+
+  /// Factory constructor to create an [InsertResourceResponse] from JSON.
+  factory InsertResourceResponse.fromJson(Map<String, dynamic> json) {
+    return InsertResourceResponse(
+      success: json['success'] as bool,
+      tokens: json['tokens'] as int,
+    );
+  }
 }
 
 class QueryResourceResponse<T> {
