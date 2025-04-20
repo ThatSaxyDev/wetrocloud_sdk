@@ -15,9 +15,10 @@ class WetroCloud {
           headers: {
             'Authorization': 'Token $apiKey',
           },
-        )) {
-    _dio.interceptors.add(CurlLoggerInterceptor());
-  }
+        ));
+  //       {
+  //   _dio.interceptors.add(CurlLoggerInterceptor());
+  // }
 
   /// Creates a new collection in WetroCloud.
   ///
@@ -25,12 +26,18 @@ class WetroCloud {
   ///
   /// Returns a [CreateCollectionResponse] containing the [collectionId] and a success status.
   /// Throws an [Exception] if the request fails.
-  Future<CreateCollectionResponse> createCollection() async {
+  Future<CreateCollectionResponse> createCollection(
+      {String? collectionId}) async {
     try {
       'Creating collection...'.log();
 
+      final formData = FormData.fromMap({
+        'collection_id': MultipartFile.fromString(collectionId ?? ''),
+      });
+
       final response = await _dio.post(
         '/collection/create/',
+        data: collectionId == null || collectionId.isEmpty ? null : formData,
         options: Options(
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -91,9 +98,9 @@ class WetroCloud {
     'Type: $type'.log();
     try {
       final formData = FormData.fromMap({
-        'collection_id': collectionId,
-        'resource': resource,
-        'type': type,
+        'collection_id': MultipartFile.fromString(collectionId),
+        'resource': MultipartFile.fromString(resource),
+        'type': MultipartFile.fromString(type),
       });
 
       final response = await _dio.post(
@@ -109,10 +116,7 @@ class WetroCloud {
       return InsertResourceResponse.fromJson(response.data);
     } on DioException catch (e) {
       'Failed to insert resource: ${e.message}'.log();
-      'DioException type: ${e.type}'.log();
       'DioException error: ${e.error}'.log();
-      'DioException response: ${e.response?.data}'.log();
-      'DioException requestOptions: ${e.requestOptions}'.log();
 
       throw Exception(
           'Failed to insert resource: ${e.response?.data ?? e.message}');
@@ -125,18 +129,56 @@ class WetroCloud {
   ///
   /// [collectionId] is the ID of the collection.
   /// [requestQuery] is the query string.
-  /// [jsonSchema], [jsonSchemaRules], [model], and [stream] are optional.
-  Future<QueryResourceResponse<T>> queryResource<T>({
+  Future<QueryResourceResponse> queryCollection({
     required String collectionId,
     required String requestQuery,
-    T? jsonSchema,
-    List<T>? jsonSchemaList,
-    String? jsonSchemaRules,
-    String? model,
     bool stream = false,
   }) async {
-    throw UnimplementedError();
+    'Querying collection...'.log();
+    'Collection ID: $collectionId'.log();
+    'Request Query: $requestQuery'.log();
+
+    try {
+      final response = await _dio.post(
+        '/collection/query/',
+        data: {
+          'collection_id': collectionId,
+          'request_query': requestQuery,
+        },
+        options: Options(
+          contentType: Headers.jsonContentType,
+        ),
+      );
+
+      'Query response: ${response.data}'.log();
+
+      return QueryResourceResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      'Failed to query collection: ${e.message}'.log();
+
+      'DioException error: ${e.error}'.log();
+
+      throw Exception(
+          'Failed to query collection: ${e.response?.data ?? e.message}');
+    }
   }
+
+  /// Queries resources from a collection.
+  ///
+  /// [collectionId] is the ID of the collection.
+  /// [requestQuery] is the query string.
+  /// [jsonSchema], [jsonSchemaRules], [model], and [stream] are optional.
+  // Future<QueryResourceResponse<T>> queryResource<T>({
+  //   required String collectionId,
+  //   required String requestQuery,
+  //   T? jsonSchema,
+  //   List<T>? jsonSchemaList,
+  //   String? jsonSchemaRules,
+  //   String? model,
+  //   bool stream = false,
+  // }) async {
+  //   throw UnimplementedError();
+  // }
 
   /// Sends a chat message using collection context and chat history.
   ///
@@ -167,7 +209,30 @@ class WetroCloud {
   Future<GenericResponse> deleteCollection({
     required String collectionId,
   }) async {
-    throw UnimplementedError();
+    'Deleting collection: $collectionId'.log();
+    try {
+      final response = await _dio.delete(
+        '/collection/delete/',
+        data: {'collection_id': collectionId},
+        options: Options(
+          contentType: Headers.jsonContentType,
+        ),
+      );
+
+      'Delete collection response: ${response.data}'.log();
+
+      return GenericResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      'Failed to delete collection: ${e.message}'.log();
+      'DioException type: ${e.type}'.log();
+      'DioException error: ${e.error}'.log();
+      'DioException response: ${e.response?.data}'.log();
+      'DioException requestOptions: ${e.requestOptions}'.log();
+
+      throw Exception(
+        'Failed to delete collection: ${e.response?.data ?? e.message}',
+      );
+    }
   }
 
   /// Categorizes a resource using a provided schema and list of categories.

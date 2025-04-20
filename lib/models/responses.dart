@@ -45,11 +45,30 @@ class InsertResourceResponse {
   }
 }
 
-class QueryResourceResponse<T> {
-  // Define the properties and methods for QueryResourceResponse
-  final T data;
+class QueryResourceResponse {
+  final String response;
+  final int tokens;
+  final bool success;
 
-  QueryResourceResponse({required this.data});
+  QueryResourceResponse({
+    required this.response,
+    required this.tokens,
+    required this.success,
+  });
+
+  factory QueryResourceResponse.fromJson(Map<String, dynamic> json) {
+    return QueryResourceResponse(
+      response: json['response'] as String,
+      tokens: json['tokens'] as int,
+      success: json['success'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'response': response,
+        'tokens': tokens,
+        'success': success,
+      };
 }
 
 class Collection {
@@ -105,10 +124,20 @@ class ChatMessage {
 
 class GenericResponse {
   // Define the properties and methods for GenericResponse
-  final String status;
+  final bool success;
   final String message;
 
-  GenericResponse({required this.status, required this.message});
+  GenericResponse({
+    required this.success,
+    required this.message,
+  });
+
+  factory GenericResponse.fromJson(Map<String, dynamic> json) {
+    return GenericResponse(
+      message: json['message'] as String,
+      success: json['success'] as bool,
+    );
+  }
 }
 
 class CategorizeResponse<T> {
