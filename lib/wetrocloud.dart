@@ -60,6 +60,8 @@ class WetroCloud {
     try {
       final response = await _dio.get('/collection/all/');
 
+      'list Collections response: ${response.data}'.log();
+
       return ListCollectionsResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(
@@ -83,20 +85,39 @@ class WetroCloud {
     required String resource,
     required String type,
   }) async {
+    'Inserting resource...'.log();
+    'Collection ID: $collectionId'.log();
+    'Resource: $resource'.log();
+    'Type: $type'.log();
     try {
+      final formData = FormData.fromMap({
+        'collection_id': collectionId,
+        'resource': resource,
+        'type': type,
+      });
+
       final response = await _dio.post(
-        '/resource/insert',
-        data: {
-          'collection_id': collectionId,
-          'resource': resource,
-          'type': type,
-        },
+        '/resource/insert/',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+        ),
       );
+
+      'Insert resource response: ${response.data}'.log();
 
       return InsertResourceResponse.fromJson(response.data);
     } on DioException catch (e) {
+      'Failed to insert resource: ${e.message}'.log();
+      'DioException type: ${e.type}'.log();
+      'DioException error: ${e.error}'.log();
+      'DioException response: ${e.response?.data}'.log();
+      'DioException requestOptions: ${e.requestOptions}'.log();
+
       throw Exception(
           'Failed to insert resource: ${e.response?.data ?? e.message}');
+      // 'Failed to insert resource: ${e.response?.data ?? e.message}'.log();
+      // throw Exception('Failed to resource: ${e.response?.data ?? e.message}');
     }
   }
 

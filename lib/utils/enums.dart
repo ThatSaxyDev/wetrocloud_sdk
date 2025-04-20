@@ -4,7 +4,7 @@ enum WetroResourceType {
   json,
   web,
   youtube,
-  audio,
+  audio;
 }
 
 extension WetroResourceTypeExtension on WetroResourceType {

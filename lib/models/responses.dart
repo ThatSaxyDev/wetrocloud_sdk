@@ -26,11 +26,13 @@ class ChatResponse<T> {
 class InsertResourceResponse {
   final bool success;
   final int tokens;
+  final String resourceId;
 
   /// Constructor for the [InsertResourceResponse] class.
   InsertResourceResponse({
     required this.success,
     required this.tokens,
+    required this.resourceId,
   });
 
   /// Factory constructor to create an [InsertResourceResponse] from JSON.
@@ -38,6 +40,7 @@ class InsertResourceResponse {
     return InsertResourceResponse(
       success: json['success'] as bool,
       tokens: json['tokens'] as int,
+      resourceId: json['resource_id'] as String,
     );
   }
 }
